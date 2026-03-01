@@ -25,7 +25,7 @@ export default function LandingPage() {
                         <span className="text-gradient">Start Working.</span>
                     </h1>
                     <p className="hero-subtitle">
-                        The AI autopilot for your career. Auto-apply to thousands of jobs on LinkedIn and Naukri tailored perfectly to your skills. No fake info, zero BS.
+                        The AI autopilot for your career. Auto-apply to thousands of jobs, tailored perfectly to your skills. No fake info, zero BS.
                     </p>
                     <div className="hero-cta-group">
                         <Link to="/register" className="btn btn-primary btn-lg cta-main">
@@ -61,17 +61,25 @@ export default function LandingPage() {
                     <div className="bento-card col-span-2">
                         <div className="bento-icon"><FiZap /></div>
                         <h3>AI Tailored Resumes</h3>
-                        <p>Our GPT-4 powered engine dynamically rewrites your resume for every single job application to highlight the exact skills they are looking for. No hallucinations, 100% your truth.</p>
+                        <p>Our AI engine dynamically rewrites your resume for every single job application to highlight the exact skills they are looking for. No hallucinations, 100% your truth.</p>
                     </div>
                     <div className="bento-card">
                         <div className="bento-icon"><FiTarget /></div>
                         <h3>Smart Matching</h3>
                         <p>Set your minimum salary, remote preference, and keywords. We only apply to what matters.</p>
                     </div>
-                    <div className="bento-card">
+                    {/* <div className="bento-card">
                         <div className="bento-icon"><FiShield /></div>
                         <h3>Stealth Mode</h3>
                         <p>Advanced anti-bot detection evasion. We apply human-like delays so your LinkedIn and Naukri accounts stay safe.</p>
+                    </div> */}
+                    <div className="bento-card">
+                        <div className="bento-icon"><FiTrendingUp /></div>
+                        <h3>First Mover Edge</h3>
+                        <p>
+                            Our engine monitors job postings continuously and applies instantly.
+                            Be one of the earliest candidates before competition grows.
+                        </p>
                     </div>
                     <div className="bento-card col-span-2 glass-accent">
                         <div className="bento-icon"><FiTrendingUp /></div>
