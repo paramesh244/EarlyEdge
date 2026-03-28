@@ -143,9 +143,9 @@ export default function PricingPage() {
                 Application tracking
               </li>
             </ul>
-            <a href="#" id="tier-starter-cta" className="w-full py-5 border border-[#171e19] text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-navy hover:text-white transition-all">
+            <Link to="/register" id="tier-starter-cta" className="block w-full py-5 border border-[#171e19] text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-navy hover:text-white transition-all">
               Get Started Free
-            </a>
+            </Link>
           </div>
 
           {/* Professional Tier */}
@@ -183,9 +183,9 @@ export default function PricingPage() {
                 Priority queue processing
               </li>
             </ul>
-            <a href="#" id="tier-pro-cta" className="w-full py-5 bg-white text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-[#b7c6c2] transition-all">
+            <Link to="/register" id="tier-pro-cta" className="block w-full py-5 bg-white text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-[#b7c6c2] transition-all">
               Go Professional
-            </a>
+            </Link>
           </div>
 
           {/* Enterprise Tier */}
@@ -215,9 +215,9 @@ export default function PricingPage() {
                 White-label dashboard
               </li>
             </ul>
-            <a href="#" id="tier-enterprise-cta" className="w-full py-5 border border-[#171e19] text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-navy hover:text-white transition-all">
+            <Link to="/register" id="tier-enterprise-cta" className="block w-full py-5 border border-[#171e19] text-navy text-[11px] font-bold uppercase tracking-[0.3em] text-center hover:bg-navy hover:text-white transition-all">
               Contact Sales
-            </a>
+            </Link>
           </div>
         </div>
       </section>
