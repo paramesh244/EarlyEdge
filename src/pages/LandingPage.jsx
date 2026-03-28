@@ -268,7 +268,7 @@ export default function LandingPage() {
                                 Daily job reports
                             </li>
                         </ul>
-                        <a href="#" id="plan-starter-link" className="py-4 border border-[#171e19] text-[#171e19] text-center font-anton tracking-widest hover:bg-[#171e19] hover:text-white custom-transition">CHOOSE PLAN</a>
+                        <Link to="/register" id="plan-starter-link" className="block py-4 border border-[#171e19] text-[#171e19] text-center font-anton tracking-widest hover:bg-[#171e19] hover:text-white custom-transition">CHOOSE PLAN</Link>
                     </div>
 
                     <div className="landing-pricing-card bg-navy p-12 border border-navy flex flex-col scale-105 shadow-2xl reveal z-20">
@@ -298,7 +298,7 @@ export default function LandingPage() {
                                 Priority dashboard sync
                             </li>
                         </ul>
-                        <a href="#" id="plan-pro-link" className="py-4 bg-[#b7c6c2] text-[#171e19] text-center font-anton tracking-widest hover:bg-white custom-transition">START FREE TRIAL</a>
+                        <Link to="/register" id="plan-pro-link" className="block py-4 bg-[#b7c6c2] text-[#171e19] text-center font-anton tracking-widest hover:bg-white custom-transition">START FREE TRIAL</Link>
                     </div>
 
                     <div className="landing-pricing-card bg-white p-12 border border-gray-100 flex flex-col reveal">
@@ -320,7 +320,7 @@ export default function LandingPage() {
                                 API Access
                             </li>
                         </ul>
-                        <a href="#" id="plan-enterprise-link" className="py-4 border border-[#171e19] text-[#171e19] text-center font-anton tracking-widest hover:bg-[#171e19] hover:text-white custom-transition">CONTACT US</a>
+                        <Link to="/register" id="plan-enterprise-link" className="block py-4 border border-[#171e19] text-[#171e19] text-center font-anton tracking-widest hover:bg-[#171e19] hover:text-white custom-transition">CONTACT US</Link>
                     </div>
                 </div>
             </section>
@@ -353,9 +353,9 @@ export default function LandingPage() {
                     <h2 className="relative z-10 font-anton text-8xl md:text-[12vw] text-white leading-none tracking-tighter mb-12">READY TO GET EARLY?</h2>
                     <div className="flex flex-col items-center gap-8">
                         {/* <Link to="/register" className="px-8 py-3 border border-white/20 hover:bg-white hover:text-[#171e19] transition-colors text-[12px] uppercase tracking-widest font-semibold text-white"> */}
-                        <a href="/register" id="final-cta-btn" className="relative z-10 px-12 py-6 bg-[#b7c6c2] text-[#171e19] font-anton text-2xl tracking-widest hover:bg-white custom-transition">
+                        <Link to="/register" id="final-cta-btn" className="relative z-10 px-12 py-6 bg-[#b7c6c2] text-[#171e19] font-anton text-2xl tracking-widest hover:bg-white custom-transition">
                             START YOUR FREE TRIAL
-                        </a>
+                        </Link>
                         <p className="relative z-10 text-[#9f8d8b] uppercase tracking-[0.3em] text-xs">JOIN 1,000+ JOB SEEKERS GETTING HIRED FASTER</p>
                     </div>
                 </div>
