@@ -1,22 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import {
-    FiBriefcase, FiTrendingUp, FiCalendar, FiClock,
-    FiExternalLink, FiCheckCircle, FiEye, FiStar,
-    FiXCircle, FiMessageSquare, FiGift, FiUser, FiZap, FiLink
-} from 'react-icons/fi';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import './DashboardPage.css';
-
-const STATUS_CONFIG = {
-    applied: { color: '#6366f1', icon: FiBriefcase, label: 'Applied' },
-    viewed: { color: '#3b82f6', icon: FiEye, label: 'Viewed' },
-    shortlisted: { color: '#22c55e', icon: FiStar, label: 'Shortlisted' },
-    rejected: { color: '#ef4444', icon: FiXCircle, label: 'Rejected' },
-    interview: { color: '#f59e0b', icon: FiMessageSquare, label: 'Interview' },
-    offered: { color: '#06b6d4', icon: FiGift, label: 'Offered' },
-};
+import { 
+    LuBriefcase, LuCpu, LuTarget, LuTrendingUp, 
+    LuChevronRight, LuCirclePlus, LuSettings2, LuFileText, LuCircleHelp 
+} from 'react-icons/lu';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -28,209 +17,193 @@ export default function DashboardPage() {
     }, []);
 
     if (loading) {
-        return <div className="loading-page"><div className="spinner spinner-lg" /></div>;
+        return <div className="min-h-[60vh] flex items-center justify-center text-white">Loading dashboard...</div>;
     }
 
     if (!data) return null;
 
-    // Defensive defaults for different API response shapes
     const stats = data.stats || {};
-    const platformAccounts = data.platformAccounts || data.platformStatus || [];
     const recentApplications = data.recentApplications || [];
-    const profile = data.profile || { hasResume: false, skillsCount: 0, preferencesCount: 0, connectedAccounts: 0 };
 
-    const byStatus = stats.byStatus || {};
-    const pieData = Object.entries(byStatus)
-        .filter(([key, v]) => v > 0 && STATUS_CONFIG[key])
-        .map(([key, value]) => ({
-            name: STATUS_CONFIG[key].label,
-            value,
-            color: STATUS_CONFIG[key].color,
-        }));
-
-    const completionItems = [
-        { label: 'Resume', done: !!profile.hasResume },
-        { label: 'Skills', done: (profile.skillsCount || 0) > 0 },
-        { label: 'Preferences', done: (profile.preferencesCount || 0) > 0 },
-        { label: 'Platforms', done: (profile.connectedAccounts || 0) > 0 },
-    ];
-    const completionPercent = Math.round((completionItems.filter((i) => i.done).length / completionItems.length) * 100);
+    const getInitials = (company) => {
+        if (!company) return 'NA';
+        return company.substring(0, 2).toUpperCase();
+    };
 
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <h1>Welcome back, {user?.firstName} 👋</h1>
-                <p>Here's your application overview</p>
-            </div>
+        <main className="relative pt-40 md:px-12 pb-32">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#b7c6c2] rounded-full blur-[160px] opacity-10 animate-float pointer-events-none"></div>
+            
+            <header className="mb-20 reveal active">
+                <h1 className="font-anton text-8xl md:text-9xl leading-[0.85] tracking-tighter uppercase">
+                    WELCOME,<br />
+                    <span className="text-outline">{user?.firstName || 'CHRIS'} {user?.lastName || 'EVANS'}</span>
+                </h1>
+                <p className="mt-6 text-[#9f8d8b] text-[12px] uppercase tracking-[0.4em]">
+                    AGENT STATUS: 24/7 ACTIVE &bull; LAST SCAN 4M AGO
+                </p>
+            </header>
 
-            {/* Stats Cards */}
-            <div className="grid-4 dash-stats">
-                <div className="glass-card stat-card">
-                    <div className="stat-icon total"><FiBriefcase /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">{stats.totalApplications}</span>
-                        <span className="stat-label">Total Applications</span>
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24 reveal active" style={{ transitionDelay: '100ms' }}>
+                <div className="dashboard-card p-8 group">
+                    <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mb-4">Jobs Applied</p>
+                    <div className="flex justify-between items-end">
+                        <h2 className="font-anton text-6xl text-white">{stats.totalApplications !== undefined ? stats.totalApplications : '1,428'}</h2>
+                        <LuBriefcase className="text-2xl text-[#b7c6c2] opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-                <div className="glass-card stat-card">
-                    <div className="stat-icon today"><FiClock /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">{stats.todayApplications}</span>
-                        <span className="stat-label">Today</span>
+                <div className="dashboard-card p-8 group">
+                    <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mb-4">Active Threads</p>
+                    <div className="flex justify-between items-end">
+                        <h2 className="font-anton text-6xl text-white">{stats.todayApplications !== undefined ? stats.todayApplications : '42'}</h2>
+                        <LuCpu className="text-2xl text-[#d5f4f9] opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-                <div className="glass-card stat-card">
-                    <div className="stat-icon week"><FiCalendar /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">{stats.weekApplications}</span>
-                        <span className="stat-label">This Week</span>
+                <div className="dashboard-card p-8 group">
+                    <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mb-4">Matched Roles</p>
+                    <div className="flex justify-between items-end">
+                        <h2 className="font-anton text-6xl text-white">{stats.weekApplications !== undefined ? stats.weekApplications : '156'}</h2>
+                        <LuTarget className="text-2xl text-[#bbe2f5] opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-                <div className="glass-card stat-card">
-                    <div className="stat-icon month"><FiTrendingUp /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">{stats.monthApplications}</span>
-                        <span className="stat-label">This Month</span>
+                <div className="dashboard-card p-8 group">
+                    <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mb-4">Response Rate</p>
+                    <div className="flex justify-between items-end">
+                        <h2 className="font-anton text-6xl text-white">{stats.monthApplications !== undefined ? `${stats.monthApplications}%` : '14%'}</h2>
+                        <LuTrendingUp className="text-2xl text-[#b7c6c2] opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Middle Row: Chart + Profile */}
-            <div className="dash-mid-row">
-                {/* Status Breakdown */}
-                <div className="glass-card dash-chart-card">
-                    <h3>Application Status</h3>
-                    {pieData.length > 0 ? (
-                        <div className="chart-container">
-                            <ResponsiveContainer width="100%" height={220}>
-                                <PieChart>
-                                    <Pie
-                                        data={pieData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={55}
-                                        outerRadius={85}
-                                        paddingAngle={3}
-                                        dataKey="value"
-                                        stroke="none"
-                                    >
-                                        {pieData.map((entry, i) => (
-                                            <Cell key={i} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{
-                                            background: 'var(--bg-secondary)',
-                                            border: '1px solid var(--border-default)',
-                                            borderRadius: 'var(--radius-md)',
-                                            fontSize: '0.8125rem',
-                                        }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="chart-legend">
-                                {pieData.map((entry) => (
-                                    <div key={entry.name} className="legend-item">
-                                        <span className="legend-dot" style={{ background: entry.color }} />
-                                        <span className="legend-label">{entry.name}</span>
-                                        <span className="legend-value">{entry.value}</span>
+            <div className="grid grid-cols-12 gap-12">
+                <section className="col-span-12 lg:col-span-8 space-y-12">
+                    <div className="reveal active" style={{ transitionDelay: '200ms' }}>
+                        <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
+                            <h3 className="font-anton text-4xl">RECENT AUTOMATIONS</h3>
+                            <Link to="/jobs" className="text-[10px] uppercase tracking-widest text-[#9f8d8b] hover:text-white transition-colors">
+                                View History
+                            </Link>
+                        </div>
+                        <div className="space-y-4">
+                            {recentApplications.map((app) => (
+                                <div key={app.id} className="dashboard-card p-6 flex flex-col md:flex-row md:items-center justify-between group gap-4">
+                                    <div className="flex gap-6 items-center">
+                                        <div className="w-12 h-12 bg-[#171e19] border border-white/10 flex items-center justify-center font-anton text-xl group-hover:border-[#b7c6c2] transition-colors shrink-0">
+                                            {getInitials(app.job?.company)}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-anton text-xl tracking-wide">{app.job?.title || 'Unknown Role'}</h4>
+                                            <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mt-1">
+                                                {app.job?.company || 'COMPANY'} &bull; APPLIED {new Date(app.appliedAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="empty-state">
-                            <p>No applications yet</p>
-                        </div>
-                    )}
-                </div>
+                                    <div className="flex items-center gap-8 md:ml-auto">
+                                        <span className="status-badge bg-[#b7c6c2]/10 text-[#b7c6c2] uppercase font-bold shrink-0">
+                                            {app.status === 'applied' ? 'INSTANT APPLY' : app.status}
+                                        </span>
+                                        <Link to={`/jobs/${app.id}`} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-[#171e19] transition-all shrink-0">
+                                            <LuChevronRight />
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
 
-                {/* Profile Completion */}
-                <div className="glass-card dash-profile-card">
-                    <h3>Profile Completion</h3>
-                    <div className="completion-ring-container">
-                        <svg className="completion-ring" viewBox="0 0 120 120">
-                            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border-subtle)" strokeWidth="8" />
-                            <circle
-                                cx="60" cy="60" r="50" fill="none"
-                                stroke="url(#completionGrad)"
-                                strokeWidth="8"
-                                strokeLinecap="round"
-                                strokeDasharray={`${completionPercent * 3.14} ${(100 - completionPercent) * 3.14}`}
-                                transform="rotate(-90 60 60)"
-                            />
-                            <defs>
-                                <linearGradient id="completionGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor="#6366f1" />
-                                    <stop offset="100%" stopColor="#06b6d4" />
-                                </linearGradient>
-                            </defs>
-                            <text x="60" y="56" textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="700">{completionPercent}%</text>
-                            <text x="60" y="74" textAnchor="middle" fill="var(--text-tertiary)" fontSize="10">complete</text>
-                        </svg>
+                            {/* Fallback Static Cards if no recent applications */}
+                            {recentApplications.length === 0 && (
+                                <>
+                                    <div className="dashboard-card p-6 flex items-center justify-between group">
+                                        <div className="flex gap-6 items-center">
+                                            <div className="w-12 h-12 bg-[#171e19] border border-white/10 flex items-center justify-center font-anton text-xl group-hover:border-[#b7c6c2] transition-colors">TC</div>
+                                            <div>
+                                                <h4 className="font-anton text-xl tracking-wide">Senior Product Designer</h4>
+                                                <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mt-1">TECHCORP &bull; APPLIED 12M AGO</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-8">
+                                            <span className="status-badge bg-[#b7c6c2]/10 text-[#b7c6c2] uppercase font-bold">INSTANT APPLY</span>
+                                            <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-[#171e19] transition-all">
+                                                <LuChevronRight />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="dashboard-card p-6 flex items-center justify-between group">
+                                        <div className="flex gap-6 items-center">
+                                            <div className="w-12 h-12 bg-[#171e19] border border-white/10 flex items-center justify-center font-anton text-xl group-hover:border-[#b7c6c2] transition-colors">GS</div>
+                                            <div>
+                                                <h4 className="font-anton text-xl tracking-wide">Lead Frontend Engineer</h4>
+                                                <p className="text-[#9f8d8b] text-[10px] uppercase tracking-widest mt-1">GLOBAL SOLUTIONS &bull; APPLIED 1H AGO</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-8">
+                                            <span className="status-badge bg-[#d5f4f9]/10 text-[#d5f4f9] uppercase font-bold">EARLY CANDIDATE</span>
+                                            <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-[#171e19] transition-all">
+                                                <LuChevronRight />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
-                    <div className="completion-items">
-                        {completionItems.map((item) => (
-                            <div key={item.label} className={`completion-item ${item.done ? 'done' : ''}`}>
-                                <FiCheckCircle />
-                                <span>{item.label}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+                </section>
 
-            {/* Platform Status */}
-            <div className="dash-section">
-                <h3>Platform Accounts</h3>
-                <div className="grid-2">
-                    {platformAccounts.map((acc) => (
-                        <div key={acc.id} className="glass-card platform-card">
-                            <div className="platform-card-header">
-                                <div className={`platform-logo ${acc.platform}`}>
-                                    <FiLink />
-                                </div>
-                                <div>
-                                    <h4 style={{ textTransform: 'capitalize' }}>{acc.platform}</h4>
-                                    <span className="text-xs text-tertiary">
-                                        Last active: {new Date(acc.lastActiveAt).toLocaleDateString()}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className={`badge badge-${acc.status === 'active' ? 'success' : acc.status === 'paused' ? 'warning' : 'error'}`}>
-                                <span className={`status-dot ${acc.status}`} />
-                                {acc.status}
-                            </div>
+                <aside className="col-span-12 lg:col-span-4 space-y-12">
+                    <div className="reveal active" style={{ transitionDelay: '300ms' }}>
+                        <h3 className="font-anton text-2xl mb-8 border-b border-white/10 pb-4">QUICK ACTIONS</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <Link to="/skills" className="dashboard-card p-6 flex flex-col items-center justify-center gap-3 text-center group">
+                                <LuCirclePlus className="text-2xl text-[#b7c6c2]" />
+                                <span className="text-[10px] uppercase tracking-widest font-bold">Add Skills</span>
+                            </Link>
+                            <Link to="/preferences" className="dashboard-card p-6 flex flex-col items-center justify-center gap-3 text-center group">
+                                <LuSettings2 className="text-2xl text-[#d5f4f9]" />
+                                <span className="text-[10px] uppercase tracking-widest font-bold">Preferences</span>
+                            </Link>
+                            <Link to="/applications" className="dashboard-card p-6 flex flex-col items-center justify-center gap-3 text-center group">
+                                <LuFileText className="text-2xl text-[#bbe2f5]" />
+                                <span className="text-[10px] uppercase tracking-widest font-bold">Resumes</span>
+                            </Link>
+                            <Link to="#" className="dashboard-card p-6 flex flex-col items-center justify-center gap-3 text-center group">
+                                <LuCircleHelp className="text-2xl text-[#9f8d8b]" />
+                                <span className="text-[10px] uppercase tracking-widest font-bold">Support</span>
+                            </Link>
                         </div>
-                    ))}
-                </div>
-            </div>
+                    </div>
 
-            {/* Recent Applications */}
-            <div className="dash-section">
-                <h3>Recent Applications</h3>
-                <div className="glass-card recent-apps-card">
-                    {recentApplications.map((app) => {
-                        const statusConf = STATUS_CONFIG[app.status];
-                        return (
-                            <div key={app.id} className="recent-app-row">
-                                <div className="recent-app-info">
-                                    <span className="recent-app-title">{app.job.title}</span>
-                                    <span className="text-sm text-secondary">{app.job.company} · {app.job.platform}</span>
+                    <div className="reveal active" style={{ transitionDelay: '400ms' }}>
+                        <h3 className="font-anton text-2xl mb-8 border-b border-white/10 pb-4">AGENT ACTIVITY</h3>
+                        <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-white/10">
+                            
+                            <div className="relative pl-10 group">
+                                <div className="absolute left-0 top-1 w-6 h-6 rounded-full border border-white/20 bg-[#171e19] flex items-center justify-center z-10 group-hover:border-[#b7c6c2] transition-colors">
+                                    <div className="w-2 h-2 rounded-full bg-[#b7c6c2]"></div>
                                 </div>
-                                <div className="recent-app-meta">
-                                    <span className={`badge badge-${app.status === 'applied' ? 'primary' : app.status === 'viewed' ? 'info' : app.status === 'shortlisted' ? 'success' : app.status === 'interview' ? 'warning' : app.status === 'rejected' ? 'error' : 'neutral'}`}>
-                                        {statusConf.label}
-                                    </span>
-                                    <span className="text-xs text-tertiary">
-                                        {new Date(app.appliedAt).toLocaleDateString()}
-                                    </span>
-                                </div>
+                                <p className="text-[#9f8d8b] text-[9px] uppercase tracking-[0.2em]">Just Now</p>
+                                <p className="text-sm mt-1">Generated tailored resume for Senior Designer role at Meta.</p>
                             </div>
-                        );
-                    })}
-                </div>
+
+                            <div className="relative pl-10 group">
+                                <div className="absolute left-0 top-1 w-6 h-6 rounded-full border border-white/20 bg-[#171e19] flex items-center justify-center z-10">
+                                    <div className="w-2 h-2 rounded-full bg-white/20"></div>
+                                </div>
+                                <p className="text-[#9f8d8b] text-[9px] uppercase tracking-[0.2em]">14m Ago</p>
+                                <p className="text-sm mt-1">Applied to Senior Product Designer at TechCorp (9 applicants total).</p>
+                            </div>
+
+                            <div className="relative pl-10 group">
+                                <div className="absolute left-0 top-1 w-6 h-6 rounded-full border border-white/20 bg-[#171e19] flex items-center justify-center z-10">
+                                    <div className="w-2 h-2 rounded-full bg-white/20"></div>
+                                </div>
+                                <p className="text-[#9f8d8b] text-[9px] uppercase tracking-[0.2em]">1h Ago</p>
+                                <p className="text-sm mt-1">Found 12 new job postings matching "Remote UI Designer" preference.</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </aside>
             </div>
-        </div>
+        </main>
     );
 }

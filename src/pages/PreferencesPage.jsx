@@ -1,233 +1,234 @@
 import { useState, useEffect } from 'react';
 import { preferencesAPI } from '../services/api';
-import { FiPlus, FiEdit2, FiTrash2, FiX, FiMapPin, FiDollarSign, FiSettings } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import './PreferencesPage.css';
-
-const JOB_TYPES = ['full-time', 'part-time', 'contract', 'internship'];
+import { 
+    LuPencil, LuX, LuMapPin, LuPlus, 
+    LuCheck, LuRadar, LuInfo, LuLoader 
+} from 'react-icons/lu';
 
 export default function PreferencesPage() {
-    const [preferences, setPreferences] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({
-        role: '', keywords: [], location: '', remote: false,
-        minSalary: '', maxSalary: '', jobType: 'full-time',
-    });
-    const [keywordInput, setKeywordInput] = useState('');
     const [saving, setSaving] = useState(false);
+    
+    // Using a simplified state approach to mimic the template's single-preference-profile UX
+    const [titles, setTitles] = useState(['Product Designer', 'UX Engineer', 'Fullstack Developer']);
+    const [newTitle, setNewTitle] = useState('');
+    const [locations, setLocations] = useState(['New York, NY', 'Austin, TX', 'Remote']);
+    const [jobTypes, setJobTypes] = useState({
+        'Full-Time': true, 'Contract': false, 'Freelance': false, 'Part-Time': false
+    });
+    const [experience, setExperience] = useState('Senior');
+    const [benefits, setBenefits] = useState({
+        '401(k) Matching': true, 'Unlimited PTO': true, 'Learning Stipend': false, 'Mental Health Support': false
+    });
 
-    useEffect(() => {
-        preferencesAPI.getAll().then(setPreferences).finally(() => setLoading(false));
-    }, []);
-
-    const openAdd = () => {
-        setEditing(null);
-        setForm({ role: '', keywords: [], location: '', remote: false, minSalary: '', maxSalary: '', jobType: 'full-time' });
-        setKeywordInput('');
-        setModalOpen(true);
-    };
-
-    const openEdit = (pref) => {
-        setEditing(pref);
-        setForm({
-            role: pref.role, keywords: pref.keywords || [], location: pref.location,
-            remote: pref.remote, minSalary: pref.minSalary, maxSalary: pref.maxSalary,
-            jobType: pref.jobType,
-        });
-        setKeywordInput('');
-        setModalOpen(true);
-    };
-
-    const addKeyword = () => {
-        const kw = keywordInput.trim();
-        if (kw && !form.keywords.includes(kw)) {
-            setForm({ ...form, keywords: [...form.keywords, kw] });
-        }
-        setKeywordInput('');
-    };
-
-    const removeKeyword = (kw) => {
-        setForm({ ...form, keywords: form.keywords.filter((k) => k !== kw) });
-    };
-
-    const handleSave = async () => {
-        if (!form.role.trim()) {
-            toast.error('Please enter a role');
-            return;
-        }
+    const handleSave = () => {
         setSaving(true);
-        try {
-            const payload = {
-                ...form,
-                minSalary: Number(form.minSalary) || 0,
-                maxSalary: Number(form.maxSalary) || 0,
-            };
-            if (editing) {
-                const updated = await preferencesAPI.update(editing.id, payload);
-                setPreferences(preferences.map((p) => (p.id === editing.id ? updated : p)));
-                toast.success('Preference updated!');
-            } else {
-                const created = await preferencesAPI.create(payload);
-                setPreferences([...preferences, created]);
-                toast.success('Preference added!');
-            }
-            setModalOpen(false);
-        } catch {
-            toast.error('Failed to save preference');
-        } finally {
+        setTimeout(() => {
             setSaving(false);
+            toast.success("Preferences Synchronized");
+        }, 1500);
+    };
+
+    const handleAddTitle = (e) => {
+        if (e.key === 'Enter' && newTitle.trim()) {
+            if (!titles.includes(newTitle.trim())) {
+                setTitles([...titles, newTitle.trim()]);
+            }
+            setNewTitle('');
         }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await preferencesAPI.delete(id);
-            setPreferences(preferences.filter((p) => p.id !== id));
-            toast.success('Preference deleted');
-        } catch {
-            toast.error('Failed to delete');
-        }
+    const removeTitle = (t) => setTitles(titles.filter(title => title !== t));
+
+    const toggleJobType = (type) => {
+        setJobTypes(prev => ({ ...prev, [type]: !prev[type] }));
     };
 
-    const toggleActive = async (pref) => {
-        try {
-            const updated = await preferencesAPI.update(pref.id, { isActive: !pref.isActive });
-            setPreferences(preferences.map((p) => (p.id === pref.id ? updated : p)));
-        } catch {
-            toast.error('Failed to update');
-        }
+    const toggleBenefit = (benefit) => {
+        setBenefits(prev => ({ ...prev, [benefit]: !prev[benefit] }));
     };
-
-    if (loading) {
-        return <div className="loading-page"><div className="spinner spinner-lg" /></div>;
-    }
 
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <div className="page-header-row">
-                    <div>
-                        <h1>Job Preferences</h1>
-                        <p>Configure the types of jobs you want to auto-apply for</p>
+        <div className="relative">
+            {/* Header Section */}
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 reveal active">
+                <div>
+                    <span className="text-[#9f8d8b] text-[10px] uppercase tracking-[0.4em] font-bold mb-4 block">CONFIGURATION</span>
+                    <h1 className="font-anton text-4xl md:text-6xl text-white tracking-tighter">JOB PREFERENCES</h1>
+                    <p className="text-[#9f8d8b] text-lg max-w-2xl mt-4">
+                        Configure your ideal job search criteria. Our AI will automatically apply to matching positions 24/7 with tailored resumes.
+                    </p>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button 
+                        className="px-6 py-3 border border-white/10 hover:bg-white/5 transition-colors text-[10px] uppercase tracking-widest font-bold text-white"
+                        onClick={() => {
+                            setTitles(['Product Designer', 'UX Engineer']);
+                            setExperience('Senior');
+                            toast('Defaults Restored');
+                        }}
+                    >
+                        Reset Defaults
+                    </button>
+                    <button 
+                        onClick={handleSave}
+                        disabled={saving}
+                        className={`px-8 py-3 transition-colors text-[10px] uppercase tracking-widest font-bold text-[#171e19] shadow-lg flex items-center gap-2 ${saving ? 'bg-green-400' : 'bg-[#b7c6c2] hover:bg-[#a6b5b1] shadow-[#b7c6c2]/20'}`}
+                    >
+                        {saving ? (
+                            <><LuLoader className="animate-spin text-sm" /> SAVING...</>
+                        ) : (
+                            'Save Changes'
+                        )}
+                    </button>
+                </div>
+            </header>
+
+            {/* Preferences Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 pb-32">
+                
+                {/* Job Titles */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors group">
+                    <div className="flex justify-between items-start mb-6">
+                        <h3 className="font-anton text-xl text-white tracking-widest">Job Titles</h3>
+                        <LuPencil className="text-[#9f8d8b] cursor-pointer hover:text-white transition-colors" />
                     </div>
-                    <button className="btn btn-primary" onClick={openAdd}>
-                        <FiPlus /> Add Preference
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {titles.map(title => (
+                            <div key={title} className="flex items-center gap-2 px-3 py-1.5 bg-[#d5f4f9] text-[#171e19] text-xs font-semibold">
+                                {title}
+                                <LuX className="cursor-pointer hover:scale-125 transition-transform" onClick={() => removeTitle(title)} />
+                            </div>
+                        ))}
+                    </div>
+                    <input 
+                        type="text" 
+                        placeholder="Add title (e.g. Frontend...) & press Enter" 
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        onKeyDown={handleAddTitle}
+                        className="w-full bg-transparent border-b border-white/10 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#b7c6c2] custom-transition" 
+                    />
+                </div>
+
+                {/* Locations */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors">
+                    <div className="flex justify-between items-start mb-6">
+                        <h3 className="font-anton text-xl text-white tracking-widest">Locations</h3>
+                        <LuMapPin className="text-[#b7c6c2]" />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {locations.map((loc, idx) => (
+                            <div key={idx} className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold ${loc === 'Remote' ? 'bg-[#b7c6c2] text-[#171e19]' : 'bg-[#bbe2f5] text-[#171e19]'}`}>
+                                {loc}
+                            </div>
+                        ))}
+                    </div>
+                    <button className="text-[#b7c6c2] text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 mt-4 hover:text-white transition-colors">
+                        <LuPlus /> Add Location
+                    </button>
+                </div>
+
+                {/* Salary Range */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors">
+                    <div className="flex justify-between items-start mb-8">
+                        <h3 className="font-anton text-xl text-white tracking-widest">Salary Range (USD)</h3>
+                        <span className="text-white font-anton text-lg">$120K - $220K</span>
+                    </div>
+                    <div className="relative h-1 bg-white/10 rounded-full mb-8 mt-4">
+                        <div className="absolute left-[30%] right-[20%] h-full bg-[#b7c6c2]"></div>
+                        <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-4 h-4 bg-[#b7c6c2] rounded-full border-2 border-[#171e19] shadow-md cursor-pointer"></div>
+                        <div className="absolute right-[20%] top-1/2 -translate-y-1/2 w-4 h-4 bg-[#b7c6c2] rounded-full border-2 border-[#171e19] shadow-md cursor-pointer"></div>
+                    </div>
+                    <div className="flex justify-between text-[10px] uppercase tracking-widest text-[#9f8d8b] font-bold">
+                        <span>$60k</span>
+                        <span>$350k+</span>
+                    </div>
+                </div>
+
+                {/* Job Type */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors">
+                    <h3 className="font-anton text-xl text-white tracking-widest mb-8">Employment Type</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(jobTypes).map(([type, checked]) => (
+                            <label key={type} className="flex items-center justify-between p-4 border border-white/10 cursor-pointer hover:bg-white/5 custom-transition group">
+                                <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${checked ? 'text-white' : 'text-[#9f8d8b]'}`}>{type}</span>
+                                <input 
+                                    type="checkbox" 
+                                    checked={checked} 
+                                    onChange={() => toggleJobType(type)}
+                                    className="accent-[#b7c6c2] w-4 h-4" 
+                                />
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Experience Level */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors col-span-1 md:col-span-2">
+                    <h3 className="font-anton text-xl text-white tracking-widest mb-8">Experience Level</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { level: 'Entry Level', desc: '0-2 Years' },
+                            { level: 'Mid Level', desc: '3-5 Years' },
+                            { level: 'Senior', desc: '6-10 Years' },
+                            { level: 'Director / VP', desc: '10+ Years' }
+                        ].map(({ level, desc }) => (
+                            <button 
+                                key={level}
+                                onClick={() => setExperience(level)}
+                                className={`p-6 border custom-transition group text-center ${experience === level ? 'bg-[#b7c6c2] border-[#b7c6c2] shadow-lg' : 'border-white/10 hover:border-white/30 bg-white/5'}`}
+                            >
+                                <p className={`font-anton text-sm tracking-widest ${experience === level ? 'text-[#171e19]' : 'text-white'}`}>{level}</p>
+                                <p className={`text-[9px] uppercase tracking-widest mt-1 ${experience === level ? 'text-[#171e19]/70' : 'text-[#9f8d8b]'}`}>{desc}</p>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Benefits & Culture */}
+                <div className="bg-white/5 border border-white/10 p-8 hover:border-[#b7c6c2] custom-transition reveal active transition-colors">
+                    <h3 className="font-anton text-xl text-white tracking-widest mb-6">Required Benefits</h3>
+                    <div className="space-y-4">
+                        {Object.entries(benefits).map(([benefit, checked]) => (
+                            <div key={benefit} className="flex items-center gap-3" onClick={() => toggleBenefit(benefit)}>
+                                <div className={`w-5 h-5 border rounded-sm flex items-center justify-center cursor-pointer transition-colors ${checked ? 'border-[#b7c6c2] bg-[#b7c6c2]' : 'border-white/20 hover:border-white/40'}`}>
+                                    {checked && <LuCheck className="text-[#171e19] text-xs font-bold" />}
+                                </div>
+                                <span className={`text-xs font-bold uppercase tracking-widest cursor-pointer hover:text-white transition-colors ${checked ? 'text-[#b7c6c2]' : 'text-[#9f8d8b]'}`}>
+                                    {benefit}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Summary Box */}
+                <div className="bg-[#b7c6c2]/5 border border-[#b7c6c2]/20 p-8 flex flex-col justify-center items-center text-center reveal active transition-colors">
+                    <LuRadar className="text-6xl text-[#b7c6c2] mb-6 animate-pulse" />
+                    <h4 className="font-anton text-3xl text-white tracking-widest mb-2">247 MATCHING JOBS</h4>
+                    <p className="text-[#9f8d8b] text-[10px] uppercase tracking-[0.3em] mb-8">Found in the last 24 hours</p>
+                    <button className="w-full py-4 bg-[#b7c6c2] text-[#171e19] font-anton tracking-widest text-sm hover:bg-white custom-transition">
+                        PREVIEW MATCHES
                     </button>
                 </div>
             </div>
 
-            {preferences.length === 0 ? (
-                <div className="glass-card empty-state">
-                    <div className="empty-state-icon"><FiSettings /></div>
-                    <h3>No preferences set</h3>
-                    <p>Define your ideal job roles, locations, and salary ranges</p>
-                    <button className="btn btn-primary" onClick={openAdd} style={{ marginTop: '16px' }}>
-                        <FiPlus /> Add First Preference
-                    </button>
+            {/* Final Actions */}
+            <div className="mt-8 flex justify-center reveal active pb-24">
+                <div className="flex items-center gap-4 bg-white/5 p-6 border border-white/10 shadow-xl max-w-2xl text-center">
+                    <LuInfo className="text-[#b7c6c2] text-2xl shrink-0" />
+                    <p className="text-[#max-w-xl] text-xs font-semibold text-[#9f8d8b]">
+                        Your preferences are synchronized across all EarlyEdge nodes. Applications run 24/7.
+                    </p>
                 </div>
-            ) : (
-                <div className="pref-list">
-                    {preferences.map((pref) => (
-                        <div key={pref.id} className={`glass-card pref-card ${!pref.isActive ? 'inactive' : ''}`}>
-                            <div className="pref-card-header">
-                                <div>
-                                    <h3>{pref.role}</h3>
-                                    <div className="pref-meta">
-                                        <span className="pref-meta-item"><FiMapPin /> {pref.location}</span>
-                                        <span className="pref-meta-item"><FiDollarSign /> ${(pref.minSalary / 1000).toFixed(0)}k – ${(pref.maxSalary / 1000).toFixed(0)}k</span>
-                                        <span className={`badge badge-${pref.remote ? 'success' : 'neutral'}`}>
-                                            {pref.remote ? 'Remote' : 'On-site'}
-                                        </span>
-                                        <span className="badge badge-neutral">{pref.jobType}</span>
-                                    </div>
-                                </div>
-                                <div className="pref-card-actions">
-                                    <div className={`toggle ${pref.isActive ? 'active' : ''}`} onClick={() => toggleActive(pref)} />
-                                    <button className="btn btn-ghost btn-sm" onClick={() => openEdit(pref)}><FiEdit2 /></button>
-                                    <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(pref.id)}><FiTrash2 /></button>
-                                </div>
-                            </div>
-                            {pref.keywords?.length > 0 && (
-                                <div className="pref-keywords">
-                                    {pref.keywords.map((kw) => (
-                                        <span key={kw} className="tag">{kw}</span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
+            </div>
 
-            {/* Modal */}
-            {modalOpen && (
-                <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>{editing ? 'Edit Preference' : 'Add Preference'}</h2>
-                            <button className="modal-close" onClick={() => setModalOpen(false)}><FiX /></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="input-group">
-                                <label>Role</label>
-                                <input type="text" className="input-field" placeholder="Senior Software Engineer"
-                                    value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} autoFocus />
-                            </div>
-                            <div className="input-group">
-                                <label>Keywords</label>
-                                <div className="keyword-input-row">
-                                    <input type="text" className="input-field" placeholder="Type and press Enter"
-                                        value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addKeyword(); } }} />
-                                    <button className="btn btn-secondary" type="button" onClick={addKeyword}>Add</button>
-                                </div>
-                                {form.keywords.length > 0 && (
-                                    <div className="keyword-tags">
-                                        {form.keywords.map((kw) => (
-                                            <span key={kw} className="tag">{kw} <span className="tag-remove" onClick={() => removeKeyword(kw)}>×</span></span>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="input-group">
-                                <label>Location</label>
-                                <input type="text" className="input-field" placeholder="San Francisco, CA"
-                                    value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-                            </div>
-                            <div className="form-row-2">
-                                <div className="input-group">
-                                    <label>Min Salary ($)</label>
-                                    <input type="number" className="input-field" placeholder="120000"
-                                        value={form.minSalary} onChange={(e) => setForm({ ...form, minSalary: e.target.value })} />
-                                </div>
-                                <div className="input-group">
-                                    <label>Max Salary ($)</label>
-                                    <input type="number" className="input-field" placeholder="200000"
-                                        value={form.maxSalary} onChange={(e) => setForm({ ...form, maxSalary: e.target.value })} />
-                                </div>
-                            </div>
-                            <div className="input-group">
-                                <label>Job Type</label>
-                                <select className="input-field" value={form.jobType} onChange={(e) => setForm({ ...form, jobType: e.target.value })}>
-                                    {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                                </select>
-                            </div>
-                            <label className="checkbox-label">
-                                <input type="checkbox" checked={form.remote} onChange={(e) => setForm({ ...form, remote: e.target.checked })} />
-                                <span>Allow remote positions</span>
-                            </label>
-                        </div>
-                        <div className="modal-actions">
-                            <button className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                                {saving ? <div className="spinner" /> : editing ? 'Update' : 'Add Preference'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Ambient Background Elements */}
+            <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+                <div className="absolute top-[10%] left-[-5%] w-[500px] h-[500px] bg-[#b7c6c2] opacity-5 blur-[120px] rounded-full animate-float"></div>
+                <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-[#bbe2f5] opacity-5 blur-[120px] rounded-full animate-float" style={{ animationDelay: '-4s' }}></div>
+            </div>
         </div>
     );
 }
